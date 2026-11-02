@@ -11,9 +11,11 @@
 // @require      https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
 // @grant        GM_addStyle
 // @run-at       document-idle
-// @version      2026.10.31.3
+// @version      2026.11.02.2
 // ==/UserScript==
 
+
+const CHRISTOPHERO_BASE_URL = "https://christophero.xyz";
 
 /* ============================================================================
  * 地城列表：日後新增、刪除或修改地城，請編輯下方 DUNGEONS（限時）與 PERM（常駐）。
@@ -4219,6 +4221,8 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
 
   /* ---------------- 界面 ---------------- */
 
+  const CALENDAR_WIDTH = 280;
+
   function build() {
     const now = new Date();
     const lv = heroLevel();
@@ -4459,6 +4463,14 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
         const $btns = $(
           '<div style="flex:0 0 auto;white-space:nowrap;"></div>'
         );
+        const $drop = $(
+          '<button type="button" class="button clickable" style="padding:0 3px;margin-right:4px;" title="查看地城掉落">掉落</button>'
+        );
+        $drop.on("click", function (e) {
+          e.stopPropagation();
+          openDungeonDrop(d.name);
+        });
+        $btns.append($drop);
         // 只允许给"今天/明天"的副本设置战术，更远的日期不给设（避免误配）
         const diffDays = dayDiffFromToday(selDate);
         if (diffDays === 0 || diffDays === 1) {
@@ -4537,6 +4549,13 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
         const $btns = $(
           '<div style="flex:0 0 auto;white-space:nowrap;"></div>'
         );
+        const $drop = $(
+          '<button type="button" class="button clickable" style="padding:0 3px;margin-right:4px;" title="查看地城掉落">掉落</button>'
+        );
+        $drop.on("click", function (e) {
+          e.stopPropagation();
+          openDungeonDrop(d.name);
+        });
         const $cfg = $(
           '<button type="button" class="button clickable" style="padding:0 3px;" title="设置这场地城使用的战斗设置">设置</button>'
         );
@@ -4551,7 +4570,7 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
           e.stopPropagation();
           travelTo(d);
         });
-        $btns.append($cfg, $go);
+        $btns.append($drop, $cfg, $go);
         $row.append($btns);
         $row.attr("title", d.name + "  Lv" + d.min + "-" + d.max);
         $permList.append($row);
@@ -4724,7 +4743,7 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
     $main.css("position", "relative");
 
     const $holder = $(
-      '<div style="position:absolute;width:225px;z-index:5;"></div>'
+      `<div style="position:absolute;width:${CALENDAR_WIDTH}px;z-index:5;"></div>`
     );
     $holder.append(build());
     $main.append($holder);
@@ -4735,7 +4754,7 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
       const ao = $anchor.offset() || { left: 0, top: 0 };
       const extra = p === "/wod/spiel/hero/skills.php" ? 2 : 0;
       let left = ao.left - mo.left + $anchor.outerWidth() + 16 + extra;
-      const maxLeft = Math.max(0, $main.width() - 235);
+      const maxLeft = Math.max(0, $main.width() - CALENDAR_WIDTH - 10);
       if (left > maxLeft) left = maxLeft;
       const top = Math.max(0, ao.top - mo.top);
       $holder.css({
@@ -4757,7 +4776,7 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
       const $row = attrSlot();
       if ($row) {
         const $cell = $(
-          '<td valign="top" width="225" style="padding-left:10px;"></td>'
+          `<td valign="top" width="${CALENDAR_WIDTH}" style="padding-left:10px;"></td>`
         );
         $cell.append(build());
         $row.append($cell);
@@ -5500,7 +5519,7 @@ function showSkillTypeTips() {
       $(this).attr("onmouseover", `wodToolTip(this, "${str}")`);
       $(this).click(function () {
         window.open(
-          `https://christophero.xyz/skill?type=${encodeURIComponent(type)}`,
+          `${CHRISTOPHERO_BASE_URL}/skill?type=${encodeURIComponent(type)}`,
           "_blank"
         );
       });
@@ -5521,7 +5540,7 @@ function showSkillTypeTips() {
     renderSkillTips(skillMap);
   } else {
     // 获取技能信息
-    fetch("https://christophero.xyz/wod/skill/all", {
+    fetch(`${CHRISTOPHERO_BASE_URL}/wod/skill/all`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -5778,7 +5797,7 @@ function chaseWarning() {
       }
 
       tip +=
-        '查看<a href="https://christophero.xyz/itemList?categoryName=%E5%8D%A1%E6%B4%9B%E6%96%AF%E5%8F%8D%E6%8A%97%E5%86%9B%E6%94%B9%E8%89%AF%E5%85%B5%E5%99%A8" target="_blank" >反抗军武器</a><br>';
+        `查看<a href="${CHRISTOPHERO_BASE_URL}/itemList?categoryName=%E5%8D%A1%E6%B4%9B%E6%96%AF%E5%8F%8D%E6%8A%97%E5%86%9B%E6%94%B9%E8%89%AF%E5%85%B5%E5%99%A8" target="_blank" >反抗军武器</a><br>`;
       tip +=
         '重点关注: 【<a href="/wod/spiel/hero/item.php?name=%E7%81%B0%E6%9A%AE%E4%B9%8B%E5%BD%A2&is_popup=1" target="_blank" >灰暮之形</a>】【<a href="/wod/spiel/hero/item.php?name=%E6%96%A9%E6%96%AD%E5%9B%A0%E6%9E%9C%E7%9A%84%E5%87%8C%E5%86%BD%E6%B3%95%E5%88%83&is_popup=1" target="_blank" >斩断因果的凌冽法刃</a>】';
       $dungeon.mouseenter(function () {
@@ -5843,6 +5862,11 @@ function easySelling() {
   );
 }
 
+function openDungeonDrop(dungeonName) {
+  const url = `${CHRISTOPHERO_BASE_URL}/groupDungeon/${encodeURIComponent(dungeonName)}?groupId=${$('input[name="gruppe_id"]').val()}`;
+  window.open(url, "_blank");
+}
+
 /**
  * 查看地城掉落
  * @returns
@@ -5857,7 +5881,6 @@ function quickViewDrop() {
   );
 
   $quickViewDropBtn.click(function () {
-    let url = "https://christophero.xyz/groupDungeon/";
     let curDungeonName = "";
     const $that = $(this);
     if ($that.parents("div.nextdungeon").length) {
@@ -5913,9 +5936,7 @@ function quickViewDrop() {
         .text()
         .trim();
     }
-    url += encodeURIComponent(curDungeonName);
-    url += `?groupId=${$('input[name="gruppe_id"]').val()}`;
-    window.open(url, "_blank");
+    openDungeonDrop(curDungeonName);
   });
   $curConfigAnchor.after($quickViewDropBtn);
 }
