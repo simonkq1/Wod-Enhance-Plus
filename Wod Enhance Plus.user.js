@@ -11,7 +11,7 @@
 // @require      https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js
 // @grant        GM_addStyle
 // @run-at       document-idle
-// @version      2026.11.02.2
+// @version      2026.11.03.1
 // ==/UserScript==
 
 
@@ -4579,6 +4579,7 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
 
     function applyPage() {
       const isLimit = page === "limit";
+      $capText.text(isLimit ? "限时副本日历" : "常驻副本列表");
       $pageLimit.css("display", isLimit ? "" : "none");
       $pagePerm.css("display", isLimit ? "none" : "");
       $pageLabel.text(isLimit ? "限时本" : "常驻本");
@@ -4639,14 +4640,15 @@ const TH_ADV_SUBCLASS = {"SindSieverrüc":["`ه̶̼̀ل̴̮̭̔ಯ̵͈͍̈́ಾ̴�
     }
 
     function renderAll() {
+      $lvLine.text(
+        lv
+          ? "角色等级 " + lv + (onlyEligible ? "（只看可进入的限时副本）" : "")
+          : "未读到角色等级，显示全部限时副本"
+      );
       renderGrid();
       renderDay();
       renderSelInfo();
     }
-
-    $lvLine.text(
-      lv ? "角色等级 " + lv + "（只看可进入的限时副本）" : "未读到角色等级，显示全部限时副本"
-    );
 
     $chk.find("input").on("change", function () {
       onlyEligible = this.checked;
